@@ -8,7 +8,7 @@ import {
   createPromiseSaga,
   createPromiseSagaById,
 } from '../lib/asyncUtills';
-import { takeEvery, getContext } from 'redux-saga/effects';
+import { takeEvery, getContext, select } from 'redux-saga/effects';
 
 // 요청 하나 당 액션 3개
 const GET_POSTS = 'posts/GET_POSTS';
@@ -21,6 +21,7 @@ const GET_POST_ERROR = 'posts/GET_POST_ERROR';
 
 const GO_TO_HOME = 'posts/GO_TO_HOME';
 const CLEAR_POST = 'posts/CLEAR_POST';
+const PRINT_STATE = 'posts/PRINT_STATE';
 
 // redux-thunk로 구현
 // export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts);
@@ -29,12 +30,14 @@ const CLEAR_POST = 'posts/CLEAR_POST';
 //   history.push('/');
 // };
 // redux-saga로 구현
+// action creator
 export const getPosts = () => ({ type: GET_POSTS });
 export const getPost = (id) => ({
   type: GET_POST,
   payload: id, // API 호출 시 param으로 사용하기 위함
   meta: id, // reducer에서 처리할 때 사용하기 위함
 });
+export const printState = () => ({ type: PRINT_STATE });
 
 const getPostsSaga = createPromiseSaga(GET_POSTS, postsAPI.getPosts);
 const getPostSaga = createPromiseSagaById(GET_POST, postsAPI.getPostById);
@@ -44,11 +47,17 @@ function* goToHomeSaga() {
   const history = yield getContext('history');
   history.push('/');
 }
+function* printStateSaga() {
+  // select: redux-saga에서 state 확인
+  const state = yield select((state) => state.posts);
+  console.log(state);
+}
 // posts 리덕스 모듈을 위한 saga를 모니터링하는 함수
 export function* postsSaga() {
   yield takeEvery(GET_POSTS, getPostsSaga);
   yield takeEvery(GET_POST, getPostSaga);
   yield takeEvery(GO_TO_HOME, goToHomeSaga);
+  yield takeEvery(PRINT_STATE, printStateSaga);
 }
 
 export const clearPost = () => ({ type: CLEAR_POST });
