@@ -11,7 +11,8 @@ function PostListContainer() {
     dispatch(getPosts());
   }, [dispatch]);
 
-  if (loading) return <div>로딩중...</div>;
+  // !data: 첫 postList 렌더를 제외하고 postList의 최신 버전을 로딩중 표시 없이 보여주기 위함
+  if (loading && !data) return <div>로딩중...</div>;
   if (error) return <div>에러 발생!</div>;
   if (!data) return null;
 

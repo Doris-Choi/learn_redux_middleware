@@ -14,8 +14,11 @@ const GET_POST = 'posts/GET_POST';
 const GET_POST_SUCCESS = 'posts/GET_POST_SUCCESS';
 const GET_POST_ERROR = 'posts/GET_POST_ERROR';
 
-export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts);
+const CLEAR_POST = 'posts/CLEAR_POST';
+
+export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts, true);
 export const getPost = createPromiseThunk(GET_POST, postsAPI.getPostById);
+export const clearPost = () => ({ type: CLEAR_POST });
 
 const initialState = {
   posts: reducerUtils.initial(),
@@ -34,6 +37,11 @@ export default function posts(state = initialState, action) {
     case GET_POST_SUCCESS:
     case GET_POST_ERROR:
       return getPostReducer(state, action);
+    case CLEAR_POST:
+      return {
+        ...state,
+        post: reducerUtils.initial(),
+      };
     default:
       return state;
   }

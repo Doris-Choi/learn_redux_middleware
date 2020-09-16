@@ -22,14 +22,15 @@ export const createPromiseThunk = (type, promiseCreator) => {
   return thunkCreator;
 };
 
-export const handleAsyncActions = (type, key) => {
+export const handleAsyncActions = (type, key, keepData) => {
   const [SUCCESS, ERROR] = [`${type}_SUCCESS`, `${type}_ERROR`];
   const reducer = (state, action) => {
     switch (action.type) {
       case type:
         return {
           ...state,
-          [key]: reducerUtils.loading(),
+          // 첫 postList 렌더를 제외하고 postList의 최신 버전을 로딩중 표시 없이 보여주기 위함
+          [key]: reducerUtils.loading(keepData ? state[key].data : null),
         };
       case SUCCESS:
         return {
