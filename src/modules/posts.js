@@ -1,11 +1,14 @@
 import * as postsAPI from '../api/posts';
 import {
-  createPromiseThunk,
+  // createPromiseThunk,
   reducerUtils,
   handleAsyncActions,
-  createPromiseThunkById,
+  // createPromiseThunkById,
   handleAsyncActionsById,
+  createPromiseSaga,
+  createPromiseSagaById,
 } from '../lib/asyncUtills';
+import { takeEvery } from 'redux-saga/effects';
 
 // 요청 하나 당 액션 3개
 const GET_POSTS = 'posts/GET_POSTS';
@@ -18,8 +21,26 @@ const GET_POST_ERROR = 'posts/GET_POST_ERROR';
 
 const CLEAR_POST = 'posts/CLEAR_POST';
 
-export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts);
-export const getPost = createPromiseThunkById(GET_POST, postsAPI.getPostById);
+// redux-thunk로 구현
+// export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts);
+// export const getPost = createPromiseThunkById(GET_POST, postsAPI.getPostById);
+// redux-saga로 구현
+export const getPosts = () => ({ type: GET_POSTS });
+export const getPost = (id) => ({
+  type: GET_POST,
+  payload: id, // API 호출 시 param으로 사용하기 위함
+  meta: id, // reducer에서 처리할 때 사용하기 위함
+});
+
+const getPostsSaga = createPromiseSaga(GET_POSTS, postsAPI.getPosts);
+const getPostSaga = createPromiseSagaById(GET_POST, postsAPI.getPostById);
+
+// posts 리덕스 모듈을 위한 saga를 모니터링하는 함수
+export function* postsSaga() {
+  yield takeEvery(GET_POSTS, getPostsSaga);
+  yield takeEvery(GET_POST, getPostSaga);
+}
+
 export const goToHome = () => (dispatch, getState, { history }) => {
   history.push('/');
 };
