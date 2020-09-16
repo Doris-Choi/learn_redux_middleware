@@ -8,7 +8,7 @@ import {
   createPromiseSaga,
   createPromiseSagaById,
 } from '../lib/asyncUtills';
-import { takeEvery } from 'redux-saga/effects';
+import { takeEvery, getContext } from 'redux-saga/effects';
 
 // 요청 하나 당 액션 3개
 const GET_POSTS = 'posts/GET_POSTS';
@@ -19,11 +19,15 @@ const GET_POST = 'posts/GET_POST';
 const GET_POST_SUCCESS = 'posts/GET_POST_SUCCESS';
 const GET_POST_ERROR = 'posts/GET_POST_ERROR';
 
+const GO_TO_HOME = 'posts/GO_TO_HOME';
 const CLEAR_POST = 'posts/CLEAR_POST';
 
 // redux-thunk로 구현
 // export const getPosts = createPromiseThunk(GET_POSTS, postsAPI.getPosts);
 // export const getPost = createPromiseThunkById(GET_POST, postsAPI.getPostById);
+// export const goToHome = () => (dispatch, getState, { history }) => {
+//   history.push('/');
+// };
 // redux-saga로 구현
 export const getPosts = () => ({ type: GET_POSTS });
 export const getPost = (id) => ({
@@ -34,16 +38,19 @@ export const getPost = (id) => ({
 
 const getPostsSaga = createPromiseSaga(GET_POSTS, postsAPI.getPosts);
 const getPostSaga = createPromiseSagaById(GET_POST, postsAPI.getPostById);
-
+export const goToHome = () => ({ type: GO_TO_HOME });
+function* goToHomeSaga() {
+  // index.js에서 sagaMiddleware 등록 시 context에 넣어 사용하면 됨
+  const history = yield getContext('history');
+  history.push('/');
+}
 // posts 리덕스 모듈을 위한 saga를 모니터링하는 함수
 export function* postsSaga() {
   yield takeEvery(GET_POSTS, getPostsSaga);
   yield takeEvery(GET_POST, getPostSaga);
+  yield takeEvery(GO_TO_HOME, goToHomeSaga);
 }
 
-export const goToHome = () => (dispatch, getState, { history }) => {
-  history.push('/');
-};
 export const clearPost = () => ({ type: CLEAR_POST });
 
 const initialState = {
